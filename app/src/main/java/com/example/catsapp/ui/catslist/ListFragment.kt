@@ -1,6 +1,7 @@
 package com.example.catsapp.ui.catslist
 
 import android.Manifest
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.catsapp.CatApplication
 import com.example.catsapp.R
 import com.example.catsapp.model.Cat
 import com.example.catsapp.ui.adapters.CatsListAdapter
@@ -23,8 +25,17 @@ const val WRITE_PERMISSION = 100
 
 class ListFragment : Fragment(), CatsListAdapter.CardClickListener {
 
-    private lateinit var viewModel: ListViewModel
-    private val responseAdapter = CatsListAdapter(this)
+    @Inject lateinit var viewModelFactory: ListViewModelFactory
+    private val catsListAdapter = CatsListAdapter(this)
+
+    private val viewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(ListViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as CatApplication).appComponent.catListComponent().create().inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,12 +48,10 @@ class ListFragment : Fragment(), CatsListAdapter.CardClickListener {
         super.onActivityCreated(savedInstanceState)
 
         recycler_cats.layoutManager = LinearLayoutManager(context)
-        recycler_cats.adapter = responseAdapter
-
-        viewModel = ViewModelProvider(this, ListViewModelFactory(requireContext())).get(ListViewModel::class.java)
+        recycler_cats.adapter = catsListAdapter
 
         viewModel.pagedLiveData.observe(viewLifecycleOwner, Observer {
-            responseAdapter.submitList(it)
+            catsListAdapter.submitList(it)
         })
     }
 

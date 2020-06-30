@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -14,9 +13,9 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.bumptech.glide.Glide
 import com.example.catsapp.database.CatsDao
-import com.example.catsapp.database.CatsDatabase
 import com.example.catsapp.model.Cat
-import com.example.catsapp.model.CatsDataSource
+import com.example.catsapp.model.CatsFetcher
+import com.example.catsapp.network.ServiceApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -24,10 +23,14 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import javax.inject.Inject
 
-class ListViewModel(val context: Context) : ViewModel() {
+class ListViewModel @Inject constructor(
+    val context: Context,
+    val api: ServiceApi,
+    private val dao: CatsDao) : ViewModel() {
+
     val pagedLiveData: LiveData<PagedList<Cat>>
-    private val dao: CatsDao = CatsDatabase.getInstance(context).getDao()
 
     init {
         val config = PagedList.Config.Builder()
@@ -59,7 +62,7 @@ class ListViewModel(val context: Context) : ViewModel() {
 
         val dataSourceFactory = object : DataSource.Factory<Int, Cat>() {
             override fun create(): DataSource<Int, Cat> {
-                return CatsDataSource(viewModelScope)
+                return CatsFetcher(viewModelScope, api)
             }
         }
         return LivePagedListBuilder(dataSourceFactory, config)
@@ -68,7 +71,7 @@ class ListViewModel(val context: Context) : ViewModel() {
     private fun savePictureInDB(cat: Cat): String = runBlocking(Dispatchers.IO) {
         val bitmap = Glide.with(context).asBitmap().load(cat.url).submit().get()
         val storage: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val fname = "Image-" + Calendar.getInstance().time.time + ".jpg"
+        val fname = "Image-" + Calendar.getInstance().time.time + cat.url.takeLast(4)
         val file = File(storage, fname)
         if (file.exists()) file.delete()
         try {

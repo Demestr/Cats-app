@@ -42,6 +42,6 @@ data class Breed (
     @SerializedName("vcahospitals_url") var vcahospitals_url : String,
     @SerializedName("vetstreet_url") var vetstreet_url : String,
     @SerializedName("vocalisation") var vocalisation : Int,
-    //@Ignore @SerializedName("weight") var weight : Weight?,
+    @SerializedName("weight") var weight : Weight?,
     @SerializedName("wikipedia_url") var wikipedia_url : String
 )

@@ -1,19 +1,18 @@
 package com.example.catsapp.ui.adapters
 
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.catsapp.R
 import com.example.catsapp.databinding.ItemCatBinding
 import com.example.catsapp.model.Cat
+import javax.inject.Inject
 
-class CatsListAdapter(private val onCardClickListener: CardClickListener) : PagedListAdapter<Cat, CatsListAdapter.ResponseHolder>(
-    DIFF_CALLBACK
-){
+class CatsListAdapter @Inject constructor(val onCardClickListener: CardClickListener) : PagedListAdapter<Cat, CatsListAdapter.ResponseHolder>(DIFF_CALLBACK){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResponseHolder {
         val binding = ItemCatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -53,9 +52,11 @@ class CatsListAdapter(private val onCardClickListener: CardClickListener) : Page
             binding.itemPosition.text = position.toString()
             Glide.with(binding.root)
                 .load(cat?.url)
+                .thumbnail(0.5f)
                 .placeholder(R.drawable.cat_placeholder)
                 .centerCrop()
                 .dontAnimate()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.itemImage)
         }
 

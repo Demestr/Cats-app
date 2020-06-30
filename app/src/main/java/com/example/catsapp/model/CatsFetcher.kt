@@ -2,14 +2,15 @@ package com.example.catsapp.model
 
 import android.util.Log
 import androidx.paging.PageKeyedDataSource
-import com.example.catsapp.network.ApiFactory
+import com.example.catsapp.network.ServiceApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CatsDataSource(private val scope: CoroutineScope) :
+class CatsFetcher @Inject constructor(
+    private val scope: CoroutineScope,
+    private val api: ServiceApi) :
     PageKeyedDataSource<Int, Cat>() {
-
-    private val api = ApiFactory.createApi()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,

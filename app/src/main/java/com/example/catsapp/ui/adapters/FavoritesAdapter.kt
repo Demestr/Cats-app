@@ -11,8 +11,9 @@ import com.example.catsapp.R
 import com.example.catsapp.databinding.ItemCatBinding
 import com.example.catsapp.databinding.ItemFavoriteBinding
 import com.example.catsapp.model.dbclasses.CatWithBreedAndCategory
+import javax.inject.Inject
 
-class FavoritesAdapter() : ListAdapter<CatWithBreedAndCategory, FavoritesAdapter.ResponseHolder>(
+class FavoritesAdapter @Inject constructor() : ListAdapter<CatWithBreedAndCategory, FavoritesAdapter.ResponseHolder>(
     DIFF_CALLBACK
 ){
 
